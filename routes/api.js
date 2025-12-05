@@ -68,6 +68,8 @@ router.post('/trips', async (req, res) => {
 
 // Delete a trip
 router.delete('/trips/:id', async (req, res) => {
+    console.log("DELETE TRIP ID RECEIVED:", req.params.id)
+    console.log("inside delete")
     try {
         await prisma.trip.delete({
             where: { id: req.params.id }
