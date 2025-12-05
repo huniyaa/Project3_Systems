@@ -110,6 +110,7 @@ async function deleteTrip(tripId) {
     const response = await fetch(`${API_URL}/trips/${tripId}`, {
       method: 'DELETE'
     });
+    console.log('Response status:', response.status);
     if (response.ok) {
       console.log('Trip deleted successfully');
       trips = trips.filter(t => t.id !== tripId);

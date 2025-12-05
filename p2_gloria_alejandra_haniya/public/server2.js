@@ -97,7 +97,8 @@ app.put('/api/trips/:id', async (req, res) => {
 // Delete trip
 app.delete('/api/trips/:id', async (req, res) => {
   try {
-    const deletedTrip = await Trip.findByIdAndDelete(req.params.id);
+    const tripId = req.params.id;
+    const deletedTrip = await Trip.findByIdAndDelete(tripId);
     if (!deletedTrip) {
       return res.status(404).json({ error: 'Trip not found' });
     }
@@ -111,6 +112,8 @@ app.delete('/api/trips/:id', async (req, res) => {
 app.post('/api/trips/:id/cities', async (req, res) => {
   try {
     const trip = await Trip.findById(req.params.id);
+    {console.log("trip is ", trip)}
+    {console.log("param is ", req.params.id)}
     if (!trip) {
       return res.status(404).json({ error: 'Trip not found' });
     }
