@@ -7,6 +7,7 @@ export default async function handler(req, res) {
   // Extract the path after /api/
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
+  console.log("REQ METHOD:", req.method, "PATH:", pathname);
 
   console.log("Request:", req.method, pathname);
 
