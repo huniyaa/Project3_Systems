@@ -84,7 +84,7 @@ router.delete('/trips/:id', async (req, res) => {
 // ----- CITIES -----
 
 // Search for cities using API Ninjas
-router.get('/cities/search', async (req, res) => {
+router.get('/city-search', async (req, res) => {
     try {
         const { name } = req.query
         console.log('City search request for:', name);
@@ -98,7 +98,7 @@ router.get('/cities/search', async (req, res) => {
         
         const response = await fetch(apiUrl, {
             headers: {
-                'X-Api-Key': 'WFF+ylqUqaAGpTL0xzsdNw==dFi4taICkba2b98Y'
+                'X-Api-Key': process.env.API_NINJAS_KEY || 'WFF+ylqUqaAGpTL0xzsdNw==dFi4taICkba2b98Y'
             }
         })
         
@@ -114,7 +114,7 @@ router.get('/cities/search', async (req, res) => {
         console.log('Cities found:', cities.length, cities);
         res.send(cities)
     } catch (err) {
-        console.error('GET /cities/search error:', err.message)
+        console.error('GET /city-search error:', err.message)
         res.status(500).send({ error: 'Failed to search cities', details: err.message })
     }
 })

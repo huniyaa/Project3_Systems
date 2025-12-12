@@ -1163,7 +1163,7 @@ function handleCityInput(value) {
   
   console.log('Fetching city suggestions for:', query);
   cityAutocompleteTimeout = setTimeout(() => {
-    fetch(`${API_URL}/cities/search?name=${encodeURIComponent(query)}`)
+    fetch(`${API_URL}/city-search?name=${encodeURIComponent(query)}`)
       .then(res => res.json())
       .then(cities => {
         console.log('Received cities:', cities);
