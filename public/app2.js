@@ -21,6 +21,15 @@ const addTripModal = document.getElementById("addTripModal");
 const addCityModal = document.getElementById("addCityModal");
 const addActivityModal = document.getElementById("addActivityModal");
 
+const cityInput = document.getElementById("newCityName");
+const citySuggestions = document.getElementById("citySuggestions");
+
+if (cityInput) {
+  cityInput.addEventListener("input", (e) => {
+    handleCityInput(e.target.value);
+  });
+}
+
 // API Base URL
 const API_URL = window.location.origin + '/api';
 
