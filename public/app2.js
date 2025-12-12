@@ -908,6 +908,7 @@ function openAddCityModal() {
   
   // Focus on city input for better UX
   cityNameInput.focus();
+  loadCitiesIntoDropdown();
 }
 
 function handleSaveCity() {
