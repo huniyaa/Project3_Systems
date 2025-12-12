@@ -25,6 +25,29 @@ if (req.method === 'GET' && req.query.all?.[0] === 'city-search') {
   }
 }
 
+// --- CITY LIST FETCH (for dropdown) ---
+if (req.method === "GET" && pathname === "/api/city-search") {
+  const name = req.query.name || "";
+
+  try {
+    const response = await fetch(
+      `https://api.api-ninjas.com/v1/city?name=${encodeURIComponent(name)}`,
+      {
+        headers: {
+          "X-Api-Key": process.env.API_NINJAS_KEY,
+        },
+      }
+    );
+
+    const data = await response.json();
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error("City search error:", err);
+    return res.status(500).json([]);
+  }
+}
+
+
 
 import { PrismaClient } from "@prisma/client";
 

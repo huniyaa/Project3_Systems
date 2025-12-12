@@ -138,6 +138,32 @@ async function saveCity(cityData) {
   }
 }
 
+async function loadCitiesIntoDropdown() {
+  const dropdown = document.getElementById("newCityName");
+  dropdown.innerHTML = `<option value="">Loading cities...</option>`;
+
+  try {
+    // You can load all cities starting with an empty name
+    const res = await fetch(`/api/city-search?name=a`);
+    const cities = await res.json();
+
+    dropdown.innerHTML = "";
+    dropdown.appendChild(
+      new Option("Select a city", "")
+    );
+
+    cities.forEach(city => {
+      const name = `${city.name}, ${city.country}`;
+      dropdown.appendChild(new Option(name, name));
+    });
+
+  } catch (err) {
+    dropdown.innerHTML = `<option value="">Failed to load cities</option>`;
+    console.error("Dropdown city load error:", err);
+  }
+}
+
+
 async function updateCityPosition(cityId, position) {
   try {
     const response = await fetch(`${API_URL}/cities/${cityId}`, {
