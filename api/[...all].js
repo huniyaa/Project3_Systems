@@ -7,6 +7,7 @@ if (req.method === 'GET' && req.query.all?.[0] === 'city-search') {
   }
 
   try {
+    console.log("here")
     const response = await fetch(
       `https://api.api-ninjas.com/v1/city?name=${encodeURIComponent(name)}`,
       {
