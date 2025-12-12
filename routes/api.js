@@ -83,6 +83,32 @@ router.delete('/trips/:id', async (req, res) => {
 
 // ----- CITIES -----
 
+// Search for cities using API Ninjas
+router.get('/cities/search', async (req, res) => {
+    try {
+        const { name } = req.query
+        if (!name || name.trim().length === 0) {
+            return res.status(400).send({ error: 'City name is required' })
+        }
+        
+        const response = await fetch(`https://api.api-ninjas.com/v1/city?name=${encodeURIComponent(name)}`, {
+            headers: {
+                'X-Api-Key': 'WFF+ylqUqaAGpTL0xzsdNw==dFi4taICkba2b98Y'
+            }
+        })
+        
+        if (!response.ok) {
+            throw new Error(`API Ninjas error: ${response.status}`)
+        }
+        
+        const cities = await response.json()
+        res.send(cities)
+    } catch (err) {
+        console.error('GET /cities/search error:', err)
+        res.status(500).send({ error: 'Failed to search cities', details: err.message })
+    }
+})
+
 // Add a city to a trip
 router.post('/cities', async (req, res) => {
     try {

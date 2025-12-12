@@ -117,12 +117,16 @@
             <img src="icons/x_icon.svg" alt="Close" class="x-icon" />
           </button>
           <h3>What city are you visiting?</h3>
-          <input
-            type="text"
-            id="newCityName"
-            class="input-field"
-            placeholder="Enter city name"
-          />
+          <div class="city-input-container">
+            <input
+              type="text"
+              id="newCityName"
+              class="input-field"
+              placeholder="Enter city name"
+              autocomplete="off"
+            />
+            <div id="citySuggestions" class="city-suggestions-dropdown"></div>
+          </div>
 
           <h3>How will you get there?</h3>
           <div class="transport-options" id="cityTransportOptions">

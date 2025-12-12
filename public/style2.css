@@ -990,3 +990,58 @@ h1 {
     width: 100%;
   }
 }
+
+/* City Autocomplete Dropdown */
+.city-input-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.city-suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #d0d0d0;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.city-suggestions-dropdown.active {
+  display: block;
+}
+
+.city-suggestion-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 16px;
+  color: #333;
+}
+
+.city-suggestion-item:hover {
+  background-color: #f5f5f5;
+}
+
+.city-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.city-suggestion-item-main {
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+}
+
+.city-suggestion-item-sub {
+  font-size: 13px;
+  color: #999;
+  margin-top: 4px;
+}
