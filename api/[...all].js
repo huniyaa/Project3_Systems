@@ -1,3 +1,30 @@
+// --- CITY AUTOCOMPLETE (API NINJAS) ---
+if (req.method === 'GET' && req.query.all?.[0] === 'city-search') {
+  const name = req.query.name;
+
+  if (!name || name.length < 2) {
+    return res.status(200).json([]);
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.api-ninjas.com/v1/city?name=${encodeURIComponent(name)}`,
+      {
+        headers: {
+          'X-Api-Key': process.env.API_NINJAS_KEY,
+        },
+      }
+    );
+
+    const data = await response.json();
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error('City search error:', err);
+    return res.status(500).json([]);
+  }
+}
+
+
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
