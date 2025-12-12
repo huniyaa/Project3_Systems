@@ -226,6 +226,8 @@ async function deleteActivity(activityId) {
 
 // Setup Event Listeners
 function setupEventListeners() {
+  console.log('=== SETTING UP EVENT LISTENERS ===');
+  
   // Back button
   backBtn.addEventListener("click", handleBack);
 
@@ -1149,6 +1151,7 @@ function handleDeleteActivity() {
 let citySearchTimeout = null;
 
 function setupCityAutocomplete() {
+  console.log('=== SETTING UP CITY AUTOCOMPLETE ===');
   try {
     // Use event delegation on document to handle input events
     document.addEventListener('input', (e) => {
