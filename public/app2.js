@@ -143,8 +143,9 @@ async function loadCitiesIntoDropdown() {
   dropdown.innerHTML = `<option value="">Loading cities...</option>`;
 
   try {
+    const minPopulation = 500000;
     // You can load all cities starting with an empty name
-    const res = await fetch(`${API_URL}/city-search?name=a`);
+    const res = await fetch(`${API_URL}/city-search?&min_population=500000`);
     const cities = await res.json();
 
     dropdown.innerHTML = "";
