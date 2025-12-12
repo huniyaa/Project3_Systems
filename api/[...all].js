@@ -30,22 +30,22 @@ export default async function handler(req, res) {
   try {
     console.log("PATHNAME IS", pathname);
       // --- CITY AUTOCOMPLETE (API NINJAS) ---
-if (pathname === "/api/city-search" && req.method === "GET") {
-  const name = req.query.name || "";
+    if (pathname === "/api/city-search" && req.method === "GET") {
+      const name = req.query.name || "";
+      const minPopulation = req.query.min_population;
 
-  if (!name || name.length < 1) {
-    return res.status(200).json([]);
-  }
+      if (!name && !minPopulation) {
+      return res.status(200).json([]);
+}
 
   try {
-    const response = await fetch(
-      `https://api.api-ninjas.com/v1/city?name=${encodeURIComponent(name)}`,
-      {
-        headers: {
-          "X-Api-Key": process.env.API_NINJAS_KEY,
-        },
-      }
-    );
+    const url = new URL("https://api.api-ninjas.com/v1/city");
+    if (name) url.searchParams.append("name", name);
+    if (minPopulation) url.searchParams.append("min_population", minPopulation);
+
+    const response = await fetch(url.toString(), {
+      headers: { "X-Api-Key": process.env.API_NINJAS_KEY },
+    });
 
     const data = await response.json();
     return res.status(200).json(data);
