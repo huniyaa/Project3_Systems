@@ -299,9 +299,6 @@ function setupEventListeners() {
 
   // Activity type button selection
   setupActivityTypeButtons();
-
-  // City name input autocomplete
-  setupCityAutocomplete();
 }
 
 function setupTransportButtons() {
@@ -885,6 +882,9 @@ function openAddCityModal() {
   
   // Focus on city input for better UX
   cityNameInput.focus();
+  
+  // Initialize autocomplete when modal opens
+  initializeCityAutocomplete();
 }
 
 function handleSaveCity() {
@@ -1147,134 +1147,90 @@ function handleDeleteActivity() {
   }
 }
 
-// City Autocomplete Functions
-let citySearchTimeout = null;
+// City Autocomplete
+let cityAutocompleteTimeout;
 
-function setupCityAutocomplete() {
-  console.log('=== SETTING UP CITY AUTOCOMPLETE ===');
-  try {
-    // Use event delegation on document to handle input events
-    document.addEventListener('input', (e) => {
-      if (e.target.id !== 'newCityName') return;
-      
-      const searchTerm = e.target.value.trim();
-      const suggestionsDropdown = document.getElementById('citySuggestions');
-      
-      if (!suggestionsDropdown) {
-        console.warn('Suggestions dropdown not found');
-        return;
-      }
-      
-      // Clear previous timeout
-      clearTimeout(citySearchTimeout);
-      
-      if (searchTerm.length < 2) {
-        suggestionsDropdown.classList.remove('active');
-        suggestionsDropdown.innerHTML = '';
-        return;
-      }
-
-      console.log('City search triggered for:', searchTerm);
-      
-      // Debounce the search
-      citySearchTimeout = setTimeout(() => {
-        searchCities(searchTerm);
-      }, 300);
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      const suggestionsDropdown = document.getElementById('citySuggestions');
-      const cityInputContainer = document.querySelector('.city-input-container');
-      
-      if (suggestionsDropdown && cityInputContainer) {
-        if (!cityInputContainer.contains(e.target)) {
-          suggestionsDropdown.classList.remove('active');
-        }
-      }
-    });
-    
-    console.log('City autocomplete setup complete');
-  } catch (err) {
-    console.error('Error setting up city autocomplete:', err);
-  }
-}
-
-async function searchCities(query) {
-  try {
-    console.log('Fetching cities for query:', query);
-    const response = await fetch(`${API_URL}/cities/search?name=${encodeURIComponent(query)}`);
-    
-    console.log('API response status:', response.status);
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const cities = await response.json();
-    console.log('Cities received:', cities);
-    displayCitySuggestions(cities, query);
-  } catch (err) {
-    console.error('City search error:', err);
-    const suggestionsDropdown = document.getElementById('citySuggestions');
-    if (suggestionsDropdown) {
-      suggestionsDropdown.innerHTML = '<div class="city-suggestion-item">Error loading suggestions</div>';
-      suggestionsDropdown.classList.add('active');
-    }
-  }
-}
-
-function displayCitySuggestions(cities, searchTerm) {
-  const suggestionsDropdown = document.getElementById('citySuggestions');
-  const cityNameInput = document.getElementById('newCityName');
-
-  console.log('Displaying suggestions:', cities);
+// Initialize city autocomplete when modal opens
+function initializeCityAutocomplete() {
+  const cityInput = document.getElementById('newCityName');
+  const dropdown = document.getElementById('citySuggestions');
   
-  if (!suggestionsDropdown) {
-    console.error('Suggestions dropdown not found');
-    return;
-  }
-
-  if (!cities || cities.length === 0) {
-    suggestionsDropdown.innerHTML = '<div class="city-suggestion-item">No cities found</div>';
-    suggestionsDropdown.classList.add('active');
-    console.log('No cities found, showing message');
-    return;
-  }
-
-  // Limit to top 8 suggestions
-  const topCities = cities.slice(0, 8);
+  if (!cityInput || !dropdown) return;
   
-  suggestionsDropdown.innerHTML = topCities.map(city => {
-    const displayName = city.name;
-    const displayCountry = city.country ? city.country : '';
+  cityInput.addEventListener('input', function() {
+    const query = this.value.trim();
     
-    return `
-      <div class="city-suggestion-item" data-city-name="${displayName}">
-        <div class="city-suggestion-item-main">
-          <span>${displayName}</span>
-          ${displayCountry ? `<span>${displayCountry}</span>` : ''}
-        </div>
-        ${city.latitude && city.longitude ? `<div class="city-suggestion-item-sub">Lat: ${city.latitude.toFixed(2)}, Lon: ${city.longitude.toFixed(2)}</div>` : ''}
-      </div>
-    `;
-  }).join('');
-
-  // Add click handlers to suggestions
-  suggestionsDropdown.querySelectorAll('.city-suggestion-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const selectedCity = item.dataset.cityName;
-      if (cityNameInput) {
-        cityNameInput.value = selectedCity;
-      }
-      suggestionsDropdown.classList.remove('active');
-      suggestionsDropdown.innerHTML = '';
-    });
+    clearTimeout(cityAutocompleteTimeout);
+    
+    if (query.length < 2) {
+      dropdown.innerHTML = '';
+      dropdown.classList.remove('active');
+      return;
+    }
+    
+    cityAutocompleteTimeout = setTimeout(() => {
+      fetchCitySuggestions(query);
+    }, 300);
   });
+  
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.city-input-container')) {
+      dropdown.classList.remove('active');
+    }
+  });
+}
 
-  suggestionsDropdown.classList.add('active');
-  console.log('Suggestions displayed, dropdown is now active');
+function fetchCitySuggestions(query) {
+  console.log('Fetching city suggestions for:', query);
+  
+  fetch(`${API_URL}/cities/search?name=${encodeURIComponent(query)}`)
+    .then(res => res.json())
+    .then(cities => {
+      console.log('Received cities:', cities);
+      displayCitySuggestions(cities);
+    })
+    .catch(err => {
+      console.error('City fetch error:', err);
+      const dropdown = document.getElementById('citySuggestions');
+      dropdown.innerHTML = '<div class="city-suggestion-item">Error loading</div>';
+      dropdown.classList.add('active');
+    });
+}
+
+function displayCitySuggestions(cities) {
+  const dropdown = document.getElementById('citySuggestions');
+  const input = document.getElementById('newCityName');
+  
+  if (!cities || cities.length === 0) {
+    dropdown.innerHTML = '<div class="city-suggestion-item">No cities found</div>';
+    dropdown.classList.add('active');
+    return;
+  }
+  
+  dropdown.innerHTML = cities.slice(0, 8).map(city => `
+    <div class="city-suggestion-item" onclick="selectCity('${city.name}')">
+      <div class="city-suggestion-item-main">
+        <span>${city.name}</span>
+        <span>${city.country || ''}</span>
+      </div>
+      ${city.latitude ? `<div class="city-suggestion-item-sub">Lat: ${city.latitude.toFixed(2)}, Lon: ${city.longitude.toFixed(2)}</div>` : ''}
+    </div>
+  `).join('');
+  
+  dropdown.classList.add('active');
+}
+
+function selectCity(cityName) {
+  const input = document.getElementById('newCityName');
+  const dropdown = document.getElementById('citySuggestions');
+  
+  if (input) {
+    input.value = cityName;
+  }
+  dropdown.innerHTML = '';
+  dropdown.classList.remove('active');
 }
 
 // Initialize the app when DOM is ready
 document.addEventListener("DOMContentLoaded", init);
+
