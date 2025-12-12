@@ -32,18 +32,21 @@ export default async function handler(req, res) {
       // --- CITY AUTOCOMPLETE (API NINJAS) ---
     if (pathname === "/api/city-search" && req.method === "GET") {
       const name = req.query.name || "";
-      const minPopulation = req.query.min_population;
+  const country = req.query.country || "";
+  const min_population = req.query.min_population || "";
 
-      if (!name && !minPopulation) {
-      return res.status(200).json([]);
-}
+  if (!name && !country) {
+    return res.status(400).json({ error: "Name or country required" });
+  }
+
 
   try {
-    const url = new URL("https://api.api-ninjas.com/v1/city");
-    if (name) url.searchParams.append("name", name);
-    if (minPopulation) url.searchParams.append("min_population", minPopulation);
+    const params = new URLSearchParams();
+    if (name) params.append("name", name);
+    if (country) params.append("country", country);
+    if (min_population) params.append("min_population", min_population);
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(`https://api.api-ninjas.com/v1/city?${params.toString()}`, {
       headers: { "X-Api-Key": process.env.API_NINJAS_KEY },
     });
 
