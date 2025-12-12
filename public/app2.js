@@ -144,7 +144,7 @@ async function loadCitiesIntoDropdown() {
 
   try {
     // You can load all cities starting with an empty name
-    const res = await fetch(`/api/city-search?name=a`);
+    const res = await fetch(`${API_URL}/city-search?name=a`);
     const cities = await res.json();
 
     dropdown.innerHTML = "";
