@@ -87,24 +87,34 @@ router.delete('/trips/:id', async (req, res) => {
 router.get('/cities/search', async (req, res) => {
     try {
         const { name } = req.query
+        console.log('City search request for:', name);
+        
         if (!name || name.trim().length === 0) {
             return res.status(400).send({ error: 'City name is required' })
         }
         
-        const response = await fetch(`https://api.api-ninjas.com/v1/city?name=${encodeURIComponent(name)}`, {
+        const apiUrl = `https://api.api-ninjas.com/v1/city?name=${encodeURIComponent(name)}`
+        console.log('Calling API Ninjas at:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
             headers: {
                 'X-Api-Key': 'WFF+ylqUqaAGpTL0xzsdNw==dFi4taICkba2b98Y'
             }
         })
         
+        console.log('API Ninjas response status:', response.status);
+        
         if (!response.ok) {
-            throw new Error(`API Ninjas error: ${response.status}`)
+            const errorText = await response.text();
+            console.error('API Ninjas error response:', errorText);
+            throw new Error(`API Ninjas error: ${response.status} - ${errorText}`)
         }
         
         const cities = await response.json()
+        console.log('Cities found:', cities.length, cities);
         res.send(cities)
     } catch (err) {
-        console.error('GET /cities/search error:', err)
+        console.error('GET /cities/search error:', err.message)
         res.status(500).send({ error: 'Failed to search cities', details: err.message })
     }
 })
