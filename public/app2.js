@@ -45,6 +45,7 @@ async function init() {
   await loadTrips();
   console.log('Setting up event listeners');
   setupEventListeners();
+  console.log('App initialization complete');
 }
 
 // API Functions
@@ -1148,45 +1149,52 @@ function handleDeleteActivity() {
 let citySearchTimeout = null;
 
 function setupCityAutocomplete() {
-  // Use event delegation on document to handle input events
-  document.addEventListener('input', (e) => {
-    if (e.target.id !== 'newCityName') return;
-    
-    const searchTerm = e.target.value.trim();
-    const suggestionsDropdown = document.getElementById('citySuggestions');
-    
-    if (!suggestionsDropdown) return;
-    
-    // Clear previous timeout
-    clearTimeout(citySearchTimeout);
-    
-    if (searchTerm.length < 2) {
-      suggestionsDropdown.classList.remove('active');
-      suggestionsDropdown.innerHTML = '';
-      return;
-    }
-
-    console.log('City search triggered for:', searchTerm);
-    
-    // Debounce the search
-    citySearchTimeout = setTimeout(() => {
-      searchCities(searchTerm);
-    }, 300);
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', (e) => {
-    const suggestionsDropdown = document.getElementById('citySuggestions');
-    const cityInputContainer = document.querySelector('.city-input-container');
-    
-    if (suggestionsDropdown && cityInputContainer) {
-      if (!cityInputContainer.contains(e.target)) {
-        suggestionsDropdown.classList.remove('active');
+  try {
+    // Use event delegation on document to handle input events
+    document.addEventListener('input', (e) => {
+      if (e.target.id !== 'newCityName') return;
+      
+      const searchTerm = e.target.value.trim();
+      const suggestionsDropdown = document.getElementById('citySuggestions');
+      
+      if (!suggestionsDropdown) {
+        console.warn('Suggestions dropdown not found');
+        return;
       }
-    }
-  });
-  
-  console.log('City autocomplete setup complete');
+      
+      // Clear previous timeout
+      clearTimeout(citySearchTimeout);
+      
+      if (searchTerm.length < 2) {
+        suggestionsDropdown.classList.remove('active');
+        suggestionsDropdown.innerHTML = '';
+        return;
+      }
+
+      console.log('City search triggered for:', searchTerm);
+      
+      // Debounce the search
+      citySearchTimeout = setTimeout(() => {
+        searchCities(searchTerm);
+      }, 300);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const suggestionsDropdown = document.getElementById('citySuggestions');
+      const cityInputContainer = document.querySelector('.city-input-container');
+      
+      if (suggestionsDropdown && cityInputContainer) {
+        if (!cityInputContainer.contains(e.target)) {
+          suggestionsDropdown.classList.remove('active');
+        }
+      }
+    });
+    
+    console.log('City autocomplete setup complete');
+  } catch (err) {
+    console.error('Error setting up city autocomplete:', err);
+  }
 }
 
 async function searchCities(query) {
