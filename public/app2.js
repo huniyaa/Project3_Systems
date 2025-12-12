@@ -882,9 +882,6 @@ function openAddCityModal() {
   
   // Focus on city input for better UX
   cityNameInput.focus();
-  
-  // Initialize autocomplete when modal opens
-  initializeCityAutocomplete();
 }
 
 function handleSaveCity() {
@@ -1150,56 +1147,38 @@ function handleDeleteActivity() {
 // City Autocomplete
 let cityAutocompleteTimeout;
 
-// Initialize city autocomplete when modal opens
-function initializeCityAutocomplete() {
-  const cityInput = document.getElementById('newCityName');
+function handleCityInput(value) {
   const dropdown = document.getElementById('citySuggestions');
+  const query = value.trim();
   
-  if (!cityInput || !dropdown) return;
+  console.log('City input received:', query);
   
-  cityInput.addEventListener('input', function() {
-    const query = this.value.trim();
-    
-    clearTimeout(cityAutocompleteTimeout);
-    
-    if (query.length < 2) {
-      dropdown.innerHTML = '';
-      dropdown.classList.remove('active');
-      return;
-    }
-    
-    cityAutocompleteTimeout = setTimeout(() => {
-      fetchCitySuggestions(query);
-    }, 300);
-  });
+  clearTimeout(cityAutocompleteTimeout);
   
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.city-input-container')) {
-      dropdown.classList.remove('active');
-    }
-  });
-}
-
-function fetchCitySuggestions(query) {
+  if (query.length < 2) {
+    dropdown.innerHTML = '';
+    dropdown.classList.remove('active');
+    return;
+  }
+  
   console.log('Fetching city suggestions for:', query);
-  
-  fetch(`${API_URL}/cities/search?name=${encodeURIComponent(query)}`)
-    .then(res => res.json())
-    .then(cities => {
-      console.log('Received cities:', cities);
-      displayCitySuggestions(cities);
-    })
-    .catch(err => {
-      console.error('City fetch error:', err);
-      const dropdown = document.getElementById('citySuggestions');
-      dropdown.innerHTML = '<div class="city-suggestion-item">Error loading</div>';
-      dropdown.classList.add('active');
-    });
+  cityAutocompleteTimeout = setTimeout(() => {
+    fetch(`${API_URL}/cities/search?name=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(cities => {
+        console.log('Received cities:', cities);
+        displayCitySuggestions(cities);
+      })
+      .catch(err => {
+        console.error('City fetch error:', err);
+        dropdown.innerHTML = '<div class="city-suggestion-item">Error loading</div>';
+        dropdown.classList.add('active');
+      });
+  }, 300);
 }
 
 function displayCitySuggestions(cities) {
   const dropdown = document.getElementById('citySuggestions');
-  const input = document.getElementById('newCityName');
   
   if (!cities || cities.length === 0) {
     dropdown.innerHTML = '<div class="city-suggestion-item">No cities found</div>';
@@ -1208,7 +1187,7 @@ function displayCitySuggestions(cities) {
   }
   
   dropdown.innerHTML = cities.slice(0, 8).map(city => `
-    <div class="city-suggestion-item" onclick="selectCity('${city.name}')">
+    <div class="city-suggestion-item" onclick="selectCity('${city.name.replace(/'/g, "\\'")}')">
       <div class="city-suggestion-item-main">
         <span>${city.name}</span>
         <span>${city.country || ''}</span>
@@ -1230,6 +1209,16 @@ function selectCity(cityName) {
   dropdown.innerHTML = '';
   dropdown.classList.remove('active');
 }
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.city-input-container')) {
+    const dropdown = document.getElementById('citySuggestions');
+    if (dropdown) {
+      dropdown.classList.remove('active');
+    }
+  }
+});
 
 // Initialize the app when DOM is ready
 document.addEventListener("DOMContentLoaded", init);
