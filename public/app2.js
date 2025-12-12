@@ -525,7 +525,10 @@ function createCityEntry(showDelete = false) {
                 : ""
             }
             <h3>What city are you visiting?</h3>
+            <div class="city-input-container">
             <input type="text" class="city-input input-field" placeholder="Enter city name">
+            <div class="city-suggestions-dropdown"></div>
+        </div>
             
             <h3>How will you get there?</h3>
             <div class="transport-options">
