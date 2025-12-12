@@ -514,6 +514,8 @@ function openTripModal() {
   document.getElementById("tripName").value = "";
   const container = document.getElementById("citiesContainer");
   container.innerHTML = createCityEntry(false); // First city has no delete button
+  const firstInput = container.querySelector('.city-input');
+  attachCityAutocomplete(firstInput);
 }
 
 function createCityEntry(showDelete = false) {
@@ -561,12 +563,63 @@ function deleteCityEntry(button) {
     alert("You must have at least one city in your trip!");
   }
 }
+function attachCityAutocomplete(inputElement) {
+  let autocompleteTimeout;
+
+  inputElement.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+    const dropdown = inputElement.nextElementSibling; // the suggestions div
+
+    clearTimeout(autocompleteTimeout);
+
+    if (query.length < 2) {
+      dropdown.innerHTML = '';
+      dropdown.classList.remove('active');
+      return;
+    }
+
+    autocompleteTimeout = setTimeout(() => {
+      fetch(`${API_URL}/city-search?name=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(cities => {
+          if (!cities || cities.length === 0) {
+            dropdown.innerHTML = '<div class="city-suggestion-item">No cities found</div>';
+            dropdown.classList.add('active');
+            return;
+          }
+
+          dropdown.innerHTML = cities.slice(0, 8).map(city => `
+            <div class="city-suggestion-item">${city.name}, ${city.country}</div>
+          `).join('');
+
+          // Add click handlers
+          dropdown.querySelectorAll('.city-suggestion-item').forEach((item, idx) => {
+            item.addEventListener('click', () => {
+              inputElement.value = cities[idx].name;
+              dropdown.innerHTML = '';
+              dropdown.classList.remove('active');
+            });
+          });
+
+          dropdown.classList.add('active');
+        })
+        .catch(err => {
+          console.error('City fetch error:', err);
+          dropdown.innerHTML = '<div class="city-suggestion-item">Error loading</div>';
+          dropdown.classList.add('active');
+        });
+    }, 300);
+  });
+}
 
 function addCityEntryToModal() {
   const container = document.getElementById("citiesContainer");
   const entry = document.createElement("div");
   entry.innerHTML = createCityEntry(true); // Show delete button for new entries
   container.appendChild(entry.firstElementChild);
+    const newInput = container.lastElementChild.querySelector('.city-input');
+
+    attachCityAutocomplete(newInput);
 }
 
 function handleSaveTrip() {
